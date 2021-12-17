@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Login - SB Admin</title>
+        <link href="css/styles.css" rel="stylesheet" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script>
+    </head> -->
+<?php include("head.php"); ?>
+
+
+<?php
+
+$host = "localhost";
+$username = "root";
+$password = "";
+$database = "project";
+$message = "";
+try {
+    $connect = new PDO("mysql:host=$host; dbname=$database", $username, $password);
+    $connect->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+        if (empty($_POST["username"]) || empty($_POST["password"])) {
+            $message = 'All fields are required';
+        } else {
+            $query = "SELECT * FROM users WHERE username = :username AND password = :password";
+            $statement = $connect->prepare($query);
+            $statement->execute(
+                array(
+                    'username'     =>     $_POST["username"],
+                    'password'     =>     $_POST["password"]
+                )
+            );
+            $count = $statement->rowCount();
+            if ($count > 0) {
+                $_SESSION["username"] = $_POST["username"];
+
+                if (isset($_SESSION['refpage']))
+                    header('location: ' . $_SESSION['refpage']);
+                else
+                    header("location:index.php");
+            } else {
+                $message = 'wrong username or password';
+            }
+        }
+    }
+} catch (PDOException $error) {
+    $message = $error->getMessage();
+}
+?>
+
+
+
+
+
+<body class="bg-primary">
+
+    <?php include("header.php"); ?>
+
+    <div id="layoutAuthentication">
+        <div id="layoutAuthentication_content">
+            <main>
+                <div class="container">
+
+                    <div class="row justify-content-center">
+                        <div class="col-lg-5">
+                            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                <div class="card-header">
+                                    <h3 class="text-center font-weight-light my-4">Login</h3>
+                                </div>
+                                <div class="card-body">
+                                    <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="post">
+                                        <?php
+                                        if (isset($message)) {
+                                            echo '<label class="text-danger">' . $message . '</label>';
+                                        }
+                                        ?>
+                                        <div class="form-floating mb-3">
+                                            <input name="username" class="form-control" id="inputEmail" type="email" placeholder="name@example.com" />
+                                            <label for="inputEmail">Email address</label>
+                                        </div>
+                                        <div class="form-floating mb-3">
+                                            <input name="password" class="form-control" id="inputPassword" type="password" placeholder="Password" />
+                                            <label for="inputPassword">Password</label>
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" id="inputRememberPassword" type="checkbox" value="" />
+                                            <label class="form-check-label" for="inputRememberPassword">Remember Password</label>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
+                                            <a class="small" href="password.php">Forgot Password?</a>
+                                            <button type="submit" class="btn btn-primary">Login</button>
+
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="card-footer text-center py-3">
+                                    <div class="small"><a href="register.php">Need an account? Sign up!</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <div id="layoutAuthentication_footer">
+            <footer class="py-4 bg-light mt-auto">
+                <div class="container-fluid px-4">
+                    <div class="d-flex align-items-center justify-content-between small">
+                        <div class="text-muted">Copyright &copy; Your Website 2021</div>
+                        <div>
+                            <a href="#">Privacy Policy</a>
+                            &middot;
+                            <a href="#">Terms &amp; Conditions</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <?php include("footer.php"); ?>
+
+</body>
+
+</html>
